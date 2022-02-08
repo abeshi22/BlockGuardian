@@ -9,11 +9,14 @@
     </style>
 </head>
 <body>
-    <h1>ブロック守り</h1>
+    <h1 style="text-align: center;">ブロック守り</h1>
     <canvas id="myCanvas" width="480" height="480"></canvas>
+    <br>
+    <h2 style="text-align: center;">説明</h2>
+    <div style="text-align:center">
     <p>ボールからブロックを守ってください</p>
     <p>キーボードの左右／マウスで操作できます</p>
-
+    </div>
 
 
 <script>
@@ -22,16 +25,16 @@
 
     let ballX = canvas.width/2;
     let ballY = 30;
-    let initialBalldx = 3;
-    let initialBalldy = 6;
-    let balldx = 3;
-    let balldy = 6;
+    let initialBalldx = -5;
+    let initialBalldy = 10;
+    let balldx = -5;
+    let balldy = 10;
     let ballRadius = 5;
     let colorR = 255;
     let colorG = 0;
     let colorB = 0;
     let brickRowCount = 5;
-    let brickColumnCount = 4;
+    let brickColumnCount = 3;
     let brickWidth = 75;
     let brickHeight = 20;
     let brickPadding = 10;
@@ -76,12 +79,13 @@
         if (ballX + balldx > (canvas.width - ballRadius) || ballX + balldx < ballRadius){
             balldx = -balldx;
         }
-        if (ballY < ballRadius){
+        if ((ballY < ballRadius) || (ballY > canvas.height - ballRadius)){
             balldy = -balldy;
         }
         //ここからパドル当たり判定
-        if (ballX > paddleX && ballX < (paddleX + paddleWidth) && ballY > paddleY - ballRadius){
-            balldy = -Math.abs(balldy);
+        if ((ballX > paddleX && ballX < (paddleX + paddleWidth) && ballY > paddleY - ballRadius && ballY < paddleY+paddleHeight + ballRadius)
+            ){
+            balldy = -balldy;
             if(balldx > 0){
                 balldx = ((ballX - paddleX)/paddleWidth * initialBalldx * 2);
             }
@@ -89,22 +93,7 @@
                 balldx = -((paddleWidth - (ballX - paddleX))/paddleWidth * initialBalldx * 2);
             }
         }
-        //パドルに当たらず下に落ちたとき
-        if (ballY > canvas.height-ballRadius){
-            // lives--;
-            if(lives == 0){
-                alert("Game Over\nスコアは" + score + "です");
-                document.location.reload();
-                clearInterval(interval);
-            }
-            else{
-                ballX = canvas.width/2;
-                ballY = canvas.height - 30;
-                paddleX = canvas.width/2 - paddleWidth/2;
-                balldx = Math.abs(initialBalldx);
-                balldy = -Math.abs(initialBalldy);
-            }
-        }
+
     }
     // ボールの色をランダムに変える
     function colorChange(){
@@ -206,12 +195,12 @@
         ctx.fillText("Life: " + lives, canvas.width-65, 20);
     }
 
-    //クリア判定
-    function gameClear(){
-        if(score == brickColumnCount * brickRowCount * 100){
-            alert("Game Clear!\nYou Win!!");
+    //ゲームオーバー
+    function gameOver(){
+        if(lives == 0){
+            alert("Game Over\n" + time + "秒守りました！");
             document.location.reload();
-            clearInterval(interval); // Needed for Chrome to end game
+            clearInterval(interval);
         }
     }
 
@@ -231,6 +220,7 @@
         drawTime();
         drawLives();
         // gameClear();
+        gameOver();
         ballX += balldx;
         ballY += balldy;
         requestAnimationFrame(draw);
